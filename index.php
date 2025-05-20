@@ -5,6 +5,8 @@ $url = rtrim($url, '/');
 $url = filter_var($url, FILTER_SANITIZE_URL);
 $url = explode('/', $url);
 
+$url = array_map('strtolower', $url);
+
 // Check the first part of the url for the controller
 $controller_name = isset($url[0]) && $url[0] != '' ? ucfirst($url[0]) . 'Controller' : 'DefaultController';
 
@@ -21,7 +23,7 @@ require_once 'app/controllers/' . $controller_name . '.php';
 $controller = new  $controller_name();
 
 if (!method_exists($controller, $action)) {
-    die('Action not found');
+    die('Action not found: ' . $action);
 }
 
 // Call action with remaining parameters (if exists)

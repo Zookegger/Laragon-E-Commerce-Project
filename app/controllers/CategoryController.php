@@ -7,6 +7,7 @@ class CategoryController {
     private $categoryModel;
 
     public function __construct() {
+        session_start();
         $database = new Database();
         $this->db = $database->getConnection();
         $this->categoryModel = new CategoryModel($this->db);
@@ -33,7 +34,7 @@ class CategoryController {
 
             if (empty($errors)) {
                 $this->categoryModel->addCategory($name, $description);
-                header('Location: /webbanhang/Category/index');
+                header('Location: /webbanhang/category');
                 exit();
             }
         }
@@ -61,7 +62,7 @@ class CategoryController {
 
             if (empty($errors)) {
                 $this->categoryModel->updateCategory($id, $name, $description);
-                header('Location: /webbanhang/Category/index');
+                header('Location: /webbanhang/category');
                 exit();
             }
         }
@@ -78,7 +79,7 @@ class CategoryController {
         }
 
         $this->categoryModel->deleteCategory($id);
-        header('Location: /webbanhang/Category/index');
+        header('Location: /webbanhang/category');
         exit();
     }
 }

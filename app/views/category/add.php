@@ -33,7 +33,7 @@
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
-        <form method="POST" action="/webbanhang/Category/add" id="add_Category" onsubmit="return validateForm();"
+        <form method="POST" action="/webbanhang/category/add" id="add_Category" onsubmit="return validateForm();"
             class="card-body">
             <div class="form-floating mb-3">
                 <input type="text" name="name" id="name" placeholder="" required class="form-control">
@@ -46,7 +46,7 @@
         </form>
         <div class="card-footer">
             <button type="submit" form="add_Category" class="btn btn-primary">Add Category</button>
-            <a href="/webbanhang/Category/index" class="btn btn-outline-secondary">Return to list</a>
+            <a href="/webbanhang/category" class="btn btn-outline-secondary">Return to list</a>
         </div>
     </div>
 </div>

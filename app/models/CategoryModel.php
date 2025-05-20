@@ -54,4 +54,3 @@ class CategoryModel {
         return $stmt->execute();
     }
 }
-?>

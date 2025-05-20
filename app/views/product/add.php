@@ -38,7 +38,7 @@
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
-        <form method="POST" enctype="multipart/form-data" action="/webbanhang/Product/add" id="add_product" onsubmit="return validateForm();" class="card-body px-4">
+        <form method="POST" enctype="multipart/form-data" action="/webbanhang/Product/save" id="add_product" onsubmit="return validateForm();" class="card-body px-4">
             <div class="form-floating mb-3">
                 <input type="text" name="name" id="name" placeholder="" required class="form-control">
                 <label for="name" class="form-label text-muted">Product name</label>
@@ -67,7 +67,73 @@
             <div class="form-group">
                 <label for="formFileLg" class="form-label">Product Image</label>
                 <input class="form-control" type="file" name="image" id="image">
+                <label for="image" class="form-label text-muted">Choose an image</label>
             </div>
+            <script>
+                $(document).ready(function() {
+                    $('#image').change(function() {
+                        // Create or get image preview element
+                        var img = document.getElementById('preview');
+                        var clearBtn = document.getElementById('clearBtn');
+                        var fileName = $(this).val().split('\\').pop();
+
+                        if (fileName !== '') {
+                            $(this).next('.form-label').html('');
+                        } else {
+                            if (img) {
+                                img.remove();
+                            }
+
+                            if (clearBtn) {
+                                clearBtn.remove();
+                            }
+                            // Reset label text
+                            $(this).next('.form-label').html('Choose an image');
+                            return;
+                        }
+
+                        if (!img) {
+                            // Create image preview element
+                            img = document.createElement('img');
+                            img.id = 'preview';
+                            img.alt = 'Image preview';
+                            img.src = URL.createObjectURL(this.files[0]);
+                            img.onload = function() {
+                                URL.revokeObjectURL(img.src);
+                            }
+
+                            // Image preview styles
+                            img.style.display = 'block';
+                            img.style.width = '100%';
+                            img.style.height = 'auto';
+                            img.style.borderRadius = '5px';
+                            img.style.marginTop = '10px';
+                            img.style.marginBottom = '10px';
+                            img.style.objectFit = 'cover';
+                            img.style.objectPosition = 'center';
+                            img.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.2)';
+                        }
+
+                        if (!clearBtn) {
+                            clearBtn = document.createElement('button');
+                            clearBtn.id = 'clearBtn';
+                            clearBtn.innerHTML = 'Clear Image';
+                            clearBtn.type = 'button';
+                            clearBtn.className = 'btn btn-outline-danger';
+
+                            clearBtn.onclick = function() {
+                                img.remove();
+                                this.remove();
+                                $('#image').val('');
+                                $('#image').next('.form-label').html('Choose an image');
+                            }
+                        }
+                        $(this).after(img);
+                        $(img).after(clearBtn);
+                    });
+                });        
+            </script>
+
         </form>
         <div class="card-footer d-flex justify-content-between py-2">
             <a href="/webbanhang/Product/index" class="btn btn-lg btn-outline-secondary">Return to list</a>

@@ -2,7 +2,7 @@
 
 <div class="container">
     <h1>Category List</h1>
-    <a href="/webbanhang/Category/Add" role="button" class="btn btn-primary mb-3">Add new Category</a>
+    <a href="/webbanhang/category/add" role="button" class="btn btn-primary mb-3">Add new Category</a>
 
     <div class="table-responsive">
         <table class="table table-striped table-hover" border="1">
@@ -29,8 +29,8 @@
                             <td>
 
                                 <div class="btn-group gap-1 text-end">
-                                    <a href="/webbanhang/Category/edit/<?php echo $category->id; ?>" class="btn btn-secondary btn-sm">Edit</a>
-                                    <a href="/webbanhang/Category/delete/<?php echo $category->id; ?>" class="btn btn-danger btn-sm"
+                                    <a href="/webbanhang/Category/edit/<?php echo $category->id; ?>" class="btn btn-secondary fw-semibold">Edit</a>
+                                    <a href="/webbanhang/Category/delete/<?php echo $category->id; ?>" class="btn btn-danger fw-semibold"
                                     onclick="return confirm('Are you sure you want to delete this category?');">Remove</a>
                                 </div>
                             </td>
