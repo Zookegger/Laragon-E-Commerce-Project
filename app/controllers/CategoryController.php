@@ -15,8 +15,19 @@ class CategoryController {
 
     // List all categories
     public function index() {
-        $categories = $this->categoryModel->get_categories();
-        include 'app/views/category/list.php';
+        try {
+
+            $categories = [];
+            try {
+                $categories = $this->categoryModel->get_categories();
+            } catch (Exception $e) {
+                error_log("Error fetching categories: " . $e->getMessage());
+            }
+            include 'app/views/category/list.php';
+        } catch (Exception $e) {
+            error_log("Error: " . $e->getMessage());
+            include 'app/views/error/500.php';
+        }
     }
 
     // Show form to add a category and handle form submission

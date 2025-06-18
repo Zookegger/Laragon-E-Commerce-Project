@@ -23,6 +23,30 @@
 
             return true;
         }
+
+        $('#add_product_btn').click(function() {
+            if (!validateForm()) {
+                alert('Please fill in all fields correctly');
+                return;
+            }
+
+            let formData = new FormData(document.getElementById('add_product'));
+            $.ajax({
+                url: '/webbanhang/Product/save',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if (response.success) {
+                        window.location.href = '/webbanhang/Product/index';
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    alert('Error adding product: ' + error);
+                }
+            });
+        });
     </script>
 </head>
 
@@ -38,18 +62,16 @@
                 <?php endforeach; ?>
             </ul>
         <?php endif; ?>
-        <form method="POST" enctype="multipart/form-data" action="/webbanhang/Product/save" id="add_product" onsubmit="return validateForm();" class="card-body px-4">
-            <div class="form-floating mb-3">
-                <input type="text" name="name" id="name" placeholder="" required class="form-control">
+        <form method="POST" enctype="multipart/form-data" action="/webbanhang/Product/save" id="add_product" class="card-body px-4">
+            <!-- Name -->
+            <div class="form-group mb-3">
                 <label for="name" class="form-label text-muted">Product name</label>
+                <input type="text" name="name" id="name" placeholder="Enter product name" required class="form-control">
             </div>
-            <div class="form-floating mb-3">
-                <input type="text" name="description" id="description" placeholder="" required class="form-control">
-                <label for="description" class="form-label text-muted">Product description</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input type="text" name="price" id="price" placeholder="" required class="form-control">
+            <!-- Price -->
+            <div class="form-group mb-3">
                 <label for="price" class="form-label text-muted">Product price</label>
+                <input type="text" name="price" id="price" placeholder="Enter product price" required class="form-control">
             </div>
 
             <!-- Category Dropdown -->
@@ -57,16 +79,26 @@
                 <label for="category_id" class="form-label">Category</label>
                 <select class="form-select" name="category_id" id="category_id" required>
                     <option value="">-- Select Category --</option>
-                    <?php foreach ($categories as $category): ?>
+                    <?php /*
+                     foreach ($categories as $category): ?>
                         <option value="<?php echo $category->id; ?>">
                             <?php echo htmlspecialchars($category->name, ENT_QUOTES, 'UTF-8'); ?>
                         </option>
-                    <?php endforeach; ?>
+                    <?php endforeach; */
+                    ?>
                 </select>
             </div>
+
+            <!-- Description -->
+            <div class="mb-3">
+                <label for="description" class="form-label text-muted">Product description</label>
+                <textarea type="text" name="description" id="description" placeholder="Enter product description" required class="form-control" rows="3"></textarea>
+            </div>
+
+            <!-- Image -->
             <div class="form-group">
                 <label for="formFileLg" class="form-label">Product Image</label>
-                <input class="form-control" type="file" name="image" id="image">
+                <input class="form-control" type="file" accept="image/*" name="image" id="image">
                 <label for="image" class="form-label text-muted">Choose an image</label>
             </div>
             <script>
@@ -137,9 +169,36 @@
         </form>
         <div class="card-footer d-flex justify-content-between py-2">
             <a href="/webbanhang/Product/index" class="btn btn-lg btn-outline-secondary">Return to list</a>
-            <button type="submit" form="add_product" class="btn btn-lg btn-primary">Add Product</button>
+            <button type="submit" form="add_product" id="add_product_btn" class="btn btn-lg btn-primary">Add Product</button>
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        const jwtToken = localStorage.getItem('jwtToken');
+        if (!jwtToken) {
+            alert('Please login to continue');
+            window.location.href = '/webbanhang/account/loginWithJwt';
+            return;
+        }
+
+        $.ajax({
+            url: '/webbanhang/api/category/',
+            type: 'GET',
+            success: function(response) {
+                console.log(response);
+                let categories = response.categories;
+                let categorySelect = $('#category_id');
+                categories.forEach(function(category) {
+                    categorySelect.append('<option value="' + category.id + '">' + category.name + '</option>');
+                });
+            },
+            error: function(xhr, status, error) {
+                alert('Error fetching categories: ' + error);
+            }
+        });
+    });
+</script>
 
 <?php include 'app/views/shared/footer.php' ?>

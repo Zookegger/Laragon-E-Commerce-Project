@@ -1,11 +1,36 @@
 <?php include 'app/views/shared/header.php' ?>
 
+<head>
+    <title>Edit Product</title>
+    <script>
+        function validateForm() {
+            let name = document.getElementById('name').value;
+            let price = document.getElementById('price').value;
+            let errors = [];
+
+            if (name.length <= 0 || name.length > 100) {
+                errors.push('Product name must be between 10 and 100 characters');
+            }
+
+            if (price <= 0 || isNaN(price)) {
+                errors.push('Price must be a number > 0')
+            }
+
+            if (errors.length > 0) {
+                alert(errors.join('\n'));
+                return false;
+            }
+
+            return true;
+        }
+    </script>
+</head>
 
 <div class="container">
     <div class="card mx-auto" style="max-width: 800px;">
         <h1 class="card-header">Edit Product Details</h1>
-        <form method="POST" enctype="multipart/form-data" action="/webbanhang/Product/update/<?php echo $product->id ?>"
-            class="card-body" id="edit_product">
+        <form method="POST" enctype="multipart/form-data" 
+            class="card-body" id="edit_product" onsubmit="return validateForm();">
             <?php if (!empty($errors)): ?>
                 <ul class="alert alert-danger">
                     <?php foreach ($errors as $error): ?>
@@ -34,19 +59,19 @@
                 <label for="category_id" class="form-label">Category</label>
                 <select class="form-select" name="category_id" id="category_id" required>
                     <option value="">-- Select Category --</option>
-                    <?php foreach ($categories as $category): ?>
+                    <!-- <?php foreach ($categories as $category): ?>
                         <option value="<?php echo $category->id; ?>" <?php echo $product->category_id == $category->id ? 'selected' : ''; ?>>
                             <?php echo htmlspecialchars($category->name); ?>
                         </option>
-                    <?php endforeach; ?>
+                    <?php endforeach; ?> -->
                 </select>
             </div>
 
             <div class="form-group">
                 <label for="image">Product Image</label>
-                <input class="form-control" type="file" name="image" id="image">
+                <input class="form-control" type="file" accept="image/*" name="image" id="image" value="<?php echo htmlspecialchars($product->image, ENT_QUOTES, 'UTF-8'); ?>">
                 <?php if ($product->image != null): ?>
-                    <img src="/webbanhang/<?php echo htmlspecialchars($product->image, ENT_QUOTES, 'UTF-8'); ?>"
+                    <img src="<?php echo htmlspecialchars($product->image, ENT_QUOTES, 'UTF-8'); ?>"
                         class="card-img" id="preview" alt="Product Image"
                         style="display: <?php echo $product->image ? 'block' : 'none'; ?>">
                 <?php endif ?>
@@ -54,6 +79,10 @@
             </div>
             <script>
                 $(document).ready(function () {
+                    // Use the direct image path as stored in the database
+                    // This assumes the image path is already correct and complete
+                    $('#preview').attr('src', '<?php echo htmlspecialchars($product->image, ENT_QUOTES, 'UTF-8'); ?>');
+                    
                     $('#image').on('change', function (e) {
                         const input = e.target;
                         let img = document.getElementById('preview');
@@ -126,9 +155,65 @@
         </form>
         <div class="card-footer d-flex justify-content-between py-2">
             <a href="/webbanhang/Product/index" class="btn btn-lg btn-outline-secondary">Return to list</a>
-            <button type="submit" form="edit_product" class="btn btn-lg btn-primary">Update Product</button>
+            <button type="submit" id="submit" form="edit_product" class="btn btn-lg btn-primary">Update Product</button>
         </div>
     </div>
 </div>
 
 <?php include 'app/views/shared/footer.php' ?>
+
+<script>
+    $(document).ready(function() {
+        // Get product
+        $.ajax({
+            url: '/webbanhang/api/product/<?php echo $product->id; ?>',
+            type: 'GET',
+            success: function(response) {
+                let product = response.product;
+                $('#name').val(product.name);
+                $('#description').val(product.description);
+                $('#price').val(product.price);
+                $('#category_id').val(product.category_id);
+                $('#image').val(product.image);
+            },
+            error: function(xhr, status, error) {
+                alert('Error fetching product: ' + error);
+            }
+        })
+
+        // Get categories
+        $.ajax({
+            url: '/webbanhang/api/category/',
+            type: 'GET',
+            success: function(response) {
+                let categories = response.categories;
+                let categorySelect = $('#category_id');
+                categories.forEach(function(category) {
+                    categorySelect.append('<option value="' + category.id + '">' + category.name + '</option>');
+                });
+            },
+            error: function(xhr, status, error) {
+                alert('Error fetching categories: ' + error);
+            }
+        });
+    });
+
+    $('#edit_product').submit(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/webbanhang/Product/update/' + <?php echo $product->id; ?>,
+            type: 'POST',
+            data: $(this).serialize(),
+            success: function(response) {
+                if (response.success) {
+                    window.location.href = '/webbanhang/Product/index';
+                } else {
+                    alert(response.message);
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('Error updating product: ' + error);
+            }
+        });
+    });
+</script>

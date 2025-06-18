@@ -24,13 +24,22 @@ class CategoryModel {
         return $stmt->fetch(PDO::FETCH_OBJ);
     }
 
+    // Get category by name
+    public function get_category_by_name($name) {
+        $query = "SELECT * FROM " . $this->table_name . " WHERE name = :name";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":name", $name, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
     // Add a new category
     public function addCategory($name, $description) {
         $query = "INSERT INTO " . $this->table_name . " (name, description)
                   VALUES (:name, :description)";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":name", $name);
-        $stmt->bindParam(":description", $description);
+        $stmt->bindParam(":name", $name, PDO::PARAM_STR);
+        $stmt->bindParam(":description", $description, PDO::PARAM_STR);
         return $stmt->execute();
     }
 
@@ -40,8 +49,8 @@ class CategoryModel {
                   SET name = :name, description = :description
                   WHERE id = :id";
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":name", $name);
-        $stmt->bindParam(":description", $description);
+        $stmt->bindParam(":name", $name, PDO::PARAM_STR);
+        $stmt->bindParam(":description", $description, PDO::PARAM_STR);
         $stmt->bindParam(":id", $id, PDO::PARAM_INT);
         return $stmt->execute();
     }

@@ -10,11 +10,43 @@ class ProductModel {
 
     // Get product by ID
     public function get_product_by_id($id) {
-        $query = "SELECT * FROM " . $this->table_name . " WHERE id = :id";
+        $query = 
+        "SELECT p.*, c.name as category_name FROM {$this->table_name} p
+        LEFT JOIN Category c ON p.category_id = c.id 
+        WHERE p.id = :id";
+        
         $stmt = $this->connection->prepare($query);
         $stmt->bindParam(":id", $id, PDO::PARAM_INT);
         $stmt->execute();
+        
+        // For debugging
         return $stmt->fetch(PDO::FETCH_OBJ);
+    }
+
+    public function get_product_by_name($name) {
+        $query = 
+        "SELECT p.*, c.name as category_name FROM {$this->table_name} p
+        LEFT JOIN Category c ON p.category_id = c.id 
+        WHERE p.name like :name";
+        
+        $stmt = $this->connection->prepare($query);
+        $name = "%" . $name . "%";
+        $stmt->bindParam(":name", $name, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
+    }   
+
+    public function search_product($str) {
+        $query = 
+        "SELECT p.*, c.name as category_name FROM {$this->table_name} p
+        LEFT JOIN Category c ON p.category_id = c.id 
+        WHERE p.name like :str OR p.description like :str OR c.name like :str";
+
+        $stmt = $this->connection->prepare($query);
+        $str = "%" . $str . "%";
+        $stmt->bindParam(":str", $str, PDO::PARAM_STR);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 
     // Get all products
@@ -52,7 +84,7 @@ class ProductModel {
         $description = htmlspecialchars(strip_tags($description));
         $price = htmlspecialchars(strip_tags($price));
         $category_id = htmlspecialchars(strip_tags($category_id));
-        $image = htmlspecialchars(strip_tags($image));
+        $image = $image ? htmlspecialchars(strip_tags($image)) : null;
 
         $stmt->bindParam(":name", $name);
         $stmt->bindParam(":description", $description);
@@ -75,7 +107,7 @@ class ProductModel {
         $description = htmlspecialchars(strip_tags($description));
         $price = htmlspecialchars(strip_tags($price));
         $category_id = htmlspecialchars(strip_tags($category_id));
-        $image = htmlspecialchars(strip_tags($image));
+        $image = $image ? htmlspecialchars(strip_tags($image)) : null;
 
         $stmt->bindParam(":name", $name);
         $stmt->bindParam(":description", $description);

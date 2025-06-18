@@ -44,4 +44,16 @@
     </div>
 </div>
 
+<script>
+    $(document).ready(function() {
+        const jwtToken = localStorage.getItem('jwtToken');
+        console.log(jwtToken);
+        if (!jwtToken) {
+            alert('Please login to continue');
+            window.location.href = '/webbanhang/account/login';
+            return;
+        }
+    });
+</script>
+
 <?php include 'app/views/shared/footer.php' ?>

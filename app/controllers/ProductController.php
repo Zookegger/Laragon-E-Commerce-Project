@@ -3,6 +3,8 @@ require_once 'app/config/database.php';
 require_once 'app/models/ProductModel.php';
 require_once 'app/models/CategoryModel.php';
 
+error_log("Debug: " . __FILE__ . " " . __LINE__);
+
 class ProductController
 {
     private $db;
@@ -17,6 +19,11 @@ class ProductController
         $this->categoryModel = new CategoryModel($this->db);
     }
 
+    private function isAdmin()
+    {
+        return SessionHelper::isAdmin();
+    }
+
     // List all products
     public function index()
     {
@@ -28,6 +35,10 @@ class ProductController
     // Show form to add product and handle form submission
     public function add()
     {
+        if (!$this->isAdmin()) {
+            echo "You do not have permission to access this page.";
+            exit;
+        }
         $title = 'Add Product';
         $categories = $this->categoryModel->get_categories();
         include_once 'app/views/product/add.php';
@@ -35,6 +46,10 @@ class ProductController
 
     public function save()
     {
+        if (!$this->isAdmin()) {
+            echo "You do not have permission to access this feature.";
+            exit;
+        }
         $errors = [];
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = $_POST['name'];
@@ -81,6 +96,10 @@ class ProductController
     // Show form to edit product and handle form submission
     public function edit($id)
     {
+        if (!$this->isAdmin()) {
+            echo "You do not have permission to access this page.";
+            exit;
+        }
         $title = 'Edit Product';
         $product = $this->productModel->get_product_by_id($id);
         $categories = $this->categoryModel->get_categories(); // pass over to view
@@ -95,6 +114,10 @@ class ProductController
 
     public function update($id)
     {
+        if (!$this->isAdmin()) {
+            echo "You do not have permission to access this feature.";
+            exit;
+        }
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name = $_POST['name'];
             $description = $_POST['description'];
@@ -119,7 +142,7 @@ class ProductController
                     } else {
                         $image = $product->image; // Keep old image if no new image is uploaded
                     }
-                } 
+                }
 
                 $result = $this->productModel->updateProduct($id, $name, $description, $price, $category_id, $image);
                 if ($result) {
@@ -134,6 +157,11 @@ class ProductController
     // Delete a product
     public function delete($id)
     {
+        if (!$this->isAdmin()) {
+            echo "You do not have permission to access this feature.";
+            exit;
+        }
+
         $title = 'Delete Product';
         $product = $this->productModel->get_product_by_id($id);
         if (!$product) {
@@ -151,7 +179,7 @@ class ProductController
     public function uploadImage($file)
     {
         // Define the folder where the uploaded image will be saved
-        $target_dir = "uploads/";
+        $target_dir = "app/public/images/uploads/products/";
 
         // Check if the folder exists, if not, create it with permission 0777
         if (!is_dir($target_dir)) {
@@ -186,11 +214,44 @@ class ProductController
         }
 
         // Return the path of the uploaded image
-        return $target_file;
+        return '/webbanhang/public/images/' . $target_file;
     }
 
     public function addToCart($id)
     {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $quantity = $_POST['quantity'];
+
+            $product = $this->productModel->get_product_by_id($id);
+            if (!$product) {
+                echo "Item not found.";
+                return;
+            }
+
+            // Create new cart if non-exist
+            if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+                $_SESSION['cart'] = [];
+            }
+
+            if (isset($_SESSION['cart']) && array_key_exists($id, $_SESSION['cart'])) {
+                if ($quantity > 1) {
+                    $_SESSION['cart'][$id]['quantity'] += $quantity;
+                } else {
+                    $_SESSION['cart'][$id]['quantity']++;
+                }
+            } else {
+                $_SESSION['cart'][$id] = [
+                    'category_id' => $product->category_id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'quantity' => $quantity,
+                    'image' => $product->image,
+                ];
+            }
+
+            header('Location: /webbanhang/Product/cart'); // Redirect to action
+        }
+
         $product = $this->productModel->get_product_by_id($id);
         if (!$product) {
             echo "Item not found.";
@@ -202,8 +263,9 @@ class ProductController
             $_SESSION['cart'] = [];
         }
 
-        if (isset($_SESSION['cart'][$id])) {
+        if (isset($_SESSION['cart']) && array_key_exists($id, $_SESSION['cart'])) {
             $_SESSION['cart'][$id]['quantity']++;
+            
         } else {
             $_SESSION['cart'][$id] = [
                 'category_id' => $product->category_id,
@@ -299,11 +361,12 @@ class ProductController
 
             // Insert order items
             foreach ($cart as $productId => $item) {
-                $query = "INSERT INTO order_items (order_id, product_id, quantity) VALUES (:order_id, :product_id, :quantity)";
+                $query = "INSERT INTO order_details (order_id, product_id, quantity, price) VALUES (:order_id, :product_id, :quantity, :price)";
                 $stmt = $this->db->prepare($query);
                 $stmt->bindParam(':order_id', $orderId, PDO::PARAM_INT);
-                $stmt->bindParam(':product_id', $productId,PDO::PARAM_INT);
+                $stmt->bindParam(':product_id', $productId, PDO::PARAM_INT);
                 $stmt->bindParam(':quantity', $item['quantity'], PDO::PARAM_INT);
+                $stmt->bindParam(':price', $item['price'], PDO::PARAM_INT);
                 $stmt->execute();
             }
 

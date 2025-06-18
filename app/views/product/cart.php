@@ -33,7 +33,7 @@
                                     class="form-control quantity-input" value=<?= $item['quantity'] ?>></td>
                             <td class="total-cell">$<?= number_format($item['price'] * $item['quantity'], 2); ?></td>
                             <td>
-                                <button class="btn btn-danger" id="btn_removeItem" data-product-id=<?=$id?>><i class="fa-solid fa-trash"></i></button>
+                                <button class="btn btn-danger hvr-grow hvr-icon-rotate" id="btn_removeItem" data-product-id=<?=$id?>><i class="fa-solid fa-trash hvr-icon"></i></button>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -50,11 +50,11 @@
         ?></h3>
 
         <div class="d-flex flex-column flex-md-row align-items-stretch gap-3 mt-4" role="group" aria-label="Cart actions">
-            <a href="/webbanhang/product/checkout" class="btn btn-lg btn-primary w-100 w-md-auto">
-                <i class="bi bi-cart-check-fill me-2"></i> Checkout
+            <a href="/webbanhang/product/" class="btn btn-lg btn-outline-secondary w-100 w-md-auto hvr-icon-back">
+                <i class="fa fa-arrow-left me-2 hvr-icon"></i> Continue Shopping
             </a>
-            <a href="/webbanhang/product/" class="btn btn-lg btn-outline-secondary w-100 w-md-auto">
-                <i class="bi bi-arrow-left me-2"></i> Continue Shopping
+            <a href="/webbanhang/product/checkout" class="btn btn-lg btn-primary w-100 w-md-auto hvr-icon-wobble-horizontal">
+                <i class="fa-solid fa-shopping-cart me-2 hvr-icon"></i> Checkout
             </a>
         </div>
 
