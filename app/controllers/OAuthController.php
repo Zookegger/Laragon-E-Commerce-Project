@@ -13,16 +13,16 @@ class OAuthController
     {
         $this->googleClient = new \League\OAuth2\Client\Provider\Google(
             [
-                'clientId' => '766947183346-hc2g0sb5jan4mgrrm97sjubevi8dkm0f.apps.googleusercontent.com',
-                'clientSecret' => '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',
+                'clientId' => '',
+                'clientSecret' => '',
                 'redirectUri' => 'http://localhost/webbanhang/oauth/google/callback',
                 'scopes' => ['email', 'profile']
             ]
         );
         $this->facebookClient = new \League\OAuth2\Client\Provider\Facebook(
             [
-                'clientId' => '1235442278160370',
-                'clientSecret' => 'cb6444060cb454d1fd122ae7efdebed4',
+                'clientId' => '',
+                'clientSecret' => '',
                 'redirectUri' => 'http://localhost/webbanhang/oauth/facebook/callback',
                 'graphApiVersion' => 'v10.0'
             ]
